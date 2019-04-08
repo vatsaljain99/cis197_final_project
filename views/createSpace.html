@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+
+  </head>
+  <style>
+    body {
+			background-color: lightgray;
+      font-family: 'Raleway', sans-serif;
+    }
+		#head {
+      color: darkblue;
+      text-align: center;
+      margin-top: 5%;
+      margin-left: 5%;
+      margin-right: 5%;
+    }
+    #log {
+      margin: 15px;
+    }
+  </style>
+	<body>
+      <a href="/account/logout">Log out</a>
+      </p>
+    <form id="log" method="POST">
+      <h1 id="head">Create Space</h1>
+      <div class="form-group">
+        <label for="username" class="col-sm-2">Space name</label>
+        <div class="col-sm-4">
+          <input type="text" name="space" class="form-control" id="username">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="password" class="col-sm-2">Space Code</label>
+        <div class="col-sm-4">
+          <input type="password" name="password" class="form-control" id="password">
+        </div>
+      </div>
+
+			<br>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+
+		<h3 style="text-align: center">Already have a room? Click <a href="/space/join_space">here</a> to Join your existing room!</h3>
+
+
+	</body>
+</html>
