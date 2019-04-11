@@ -8,7 +8,9 @@ var Question = require('./models/question.js');
 var Room = require('./models/space.js')
 var accountRouter = require('./routes/account.js');
 var spaceRouter = require('./routes/space.js');
-var apiRouter = require('./routes/api.js');
+var async = require('async')
+
+var {apiRoutes, getRemainingTasks, getDoneTasks, getRoommates, getRemainingGroupTasks, getAllTasks, getDoneGroupTasks} = require('./routes/api.js')
 var app = express();
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hw5-new')
 
@@ -61,11 +63,32 @@ app.use(cookieSession({
 
 app.get('/', function (req, res) {
   if (req.session.space) {
-    var space = req.session.space;
-    res.render('index', {
-           space: req.session.space,
-           user: req.session.user
-         })
+    var room = req.session.space;
+    Room.findById(room, function(err, data) {
+      getDoneTasks(room, function(err, doneTasks) {
+        getRemainingTasks(room, function(err, tasks) {
+          getRoommates(room, function(err, mates) {
+            getDoneGroupTasks(room, function(err, doneGTasks) {
+              getRemainingGroupTasks(room, function(err, gTasks) {
+                async.forEachOf(gTasks, (value, key, callback) => {
+                  getAllTasks(value.id, function(err, subTasks) {
+                    if (!err) {
+                      gTasks[key].subTasks = subTasks;
+                    } else {
+                      gTasks[key].subTasks = [];
+                    }
+                    callback();
+                  })
+                }, err => {
+                    if (!err) res.render('index', {user: req.session.user, userId: req.session.userId, space: data, tasks, mates, gTasks, doneTasks, doneGTasks });
+                    else res.render('index', {user: req.session.user, userId: req.session.userId, space: data, tasks, mates, gTasks, doneTasks, doneGTasks });
+                });
+              });
+            })
+          });
+        });
+      });
+    });
 
   } else if (req.session.user) {
     res.redirect('/space/join_space');
@@ -79,7 +102,7 @@ app.post('/', function (req, res) {
 
 
 app.use('/account', accountRouter)
-app.use('/api', apiRouter)
+app.use('/api', apiRoutes)
 app.use('/space', spaceRouter)
 
 // TODO: Mount api routes at '/api' prefix

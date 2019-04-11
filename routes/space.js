@@ -8,9 +8,7 @@ var User = require('../models/user')
 router.get('/createSpace', function (req, res) {
   if (!req.session.user) {
     res.redirect('/');
-  } else if (req.session.space) {
-    res.redirect('/');
-  } else {
+  }  else {
     res.render('createSpace', {user: req.session.user, userId: req.session.userId});
   }
 });
@@ -57,9 +55,7 @@ router.get('/join_space', function (req, res) {
 
   if (!req.session.user) {
     res.redirect('/');
-  } else if (req.session.space) {
-    res.redirect('/');
-  } else {
+  }  else {
     res.render('join_space', {user: req.session.user, userId: req.session.userId});
   }
 });
@@ -88,5 +84,34 @@ router.post('/join_space', function (req, res) {
 })
 
 //Add Leave Space Later
+
+router.get('/leave_space', function (req, res, next) {
+  var roomTitle = req.session.user;
+  var userDb = User.findById(req.session.userId, function (err, result) {
+    if (!err) {
+      result.space = null;
+      result.save(function (err, result) {
+        if (err) next(err);
+          var roomDb = Space.findById(req.session.space, function (err, room) {
+            if (!err) {
+              var userInx = room.mates.indexOf(req.session.userId);
+              if (userInx > -1) {
+                room.mates.splice(userInx, 1);
+              }
+              req.session.space = null;
+              room.save(function (err, modifiedRoom) {
+              if (err) next(err);
+              res.redirect('/');
+            });
+          } else {
+            next(err)
+          }
+        });
+      });
+    } else {
+      next(err)
+    }
+  })
+})
 
 module.exports = router

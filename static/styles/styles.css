@@ -1,13 +1,10 @@
 body {
   font-family: 'Arial';
   margin: 0px;
+  background-color: #F2F3F1;
 }
 
-.nav {
-  width: 100%;
-  height: 70px;
-  margin: 0px;
-}
+
 
 .nav > p {
   float: right;
@@ -25,7 +22,7 @@ body {
   padding-top: 20px;
   padding-bottom: 20px;
   color: #FFF;
-  background-color: #F79E21;
+  background-color: lightblue;
   display: inline-block;
   cursor: pointer;
   text-align: center;
@@ -54,7 +51,7 @@ li {
 }
 
 li:hover {
-  background-color: #F79E21;
+  background-color: lightgray;
   color: #FFF;
   cursor: pointer;
 }
@@ -83,9 +80,6 @@ ul {
 .modal {
   width: 100%;
   height: 100%;
-  position: fixed;
-  top:0px;
-  left:0px;
   background-color: rgba(0,0,0,.5);
 }
 
@@ -102,4 +96,27 @@ ul {
 .question-area > textarea {
   width: 80%;
   margin: 10%;
+}
+
+.taskAction {
+	display: -webkit-inline-box;
+	display: inline-block;
+}
+
+ul>li.task {
+
+}
+
+.navbar{
+  background-color: lightblue;
+  display: flex;
+  width: 100%;
+  height: 100px;
+  color: black;
+}
+li {
+  display: inline;
+}
+.nav {
+  display: inline-block;
 }

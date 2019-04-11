@@ -3,11 +3,12 @@
 	<head>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 		<link href="https://fonts.googleapis.com/css?family=Raleway" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="/static/styles/styles.css" />
   </head>
   <style>
     body {
 			font-family: 'Raleway', sans-serif;
-			background-color: lightgray;
+			background-color: #EFF3F3;
     }
 		#head {
       color: darkblue;
@@ -18,7 +19,16 @@
     }
   </style>
 	<body>
-      <a href="/account/logout">Log out</a>
+		<nav class="navbar navbar-default navbar-fixed-top">
+	      <div class="container-fluid">
+	        <ul class="nav navbar-nav">
+	          <li><a href="/space/createSpace">Create Space</a></li>
+	          <li><a href="/space/join_space">Join Space</a></li>
+						<li><a href="/account/logout">Log out</a></li>
+	        </ul>
+	      </div>
+	    </nav>
+
       </p>
     <form id="log" method="POST">
       <h1 id="head">Please Join a Space</h1>
