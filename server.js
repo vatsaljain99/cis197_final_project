@@ -5,12 +5,12 @@ var cookieSession = require('cookie-session');
 var mongoose = require('mongoose');
 var isAuthenticated = require('./middlewares/isAuthenticated.js');
 var Question = require('./models/question.js');
-var Room = require('./models/space.js')
+var Space = require('./models/space.js')
 var accountRouter = require('./routes/account.js');
 var spaceRouter = require('./routes/space.js');
 var async = require('async')
 
-var {apiRoutes, getRemainingTasks, getDoneTasks, getRoommates, getRemainingGroupTasks, getAllTasks, getDoneGroupTasks} = require('./routes/api.js')
+var {apiRoutes, remaining_assignments_single, done_assignments_single, getRoommates, remaining_assignments_group, all_assignments, done_assignments_group} = require('./routes/api.js')
 var app = express();
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hw5-new')
 
@@ -63,15 +63,16 @@ app.use(cookieSession({
 
 app.get('/', function (req, res) {
   if (req.session.space) {
-    var room = req.session.space;
-    Room.findById(room, function(err, data) {
-      getDoneTasks(room, function(err, doneTasks) {
-        getRemainingTasks(room, function(err, tasks) {
-          getRoommates(room, function(err, mates) {
-            getDoneGroupTasks(room, function(err, doneGTasks) {
-              getRemainingGroupTasks(room, function(err, gTasks) {
+    var space = req.session.space;
+    Space.findById(space, function(err, data) {
+      //console.log(space)
+      done_assignments_single(space, function(err, doneTasks) {
+        remaining_assignments_single(space, function(err, tasks) {
+          getRoommates(space, function(err, mates) {
+            done_assignments_group(space, function(err, doneGTasks) {
+              remaining_assignments_group(space, function(err, gTasks) {
                 async.forEachOf(gTasks, (value, key, callback) => {
-                  getAllTasks(value.id, function(err, subTasks) {
+                  all_assignments(value.id, function(err, subTasks) {
                     if (!err) {
                       gTasks[key].subTasks = subTasks;
                     } else {

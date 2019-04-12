@@ -1,87 +1,30 @@
 var express = require('express')
 var apiRoutes = express.Router();
 var User = require('../models/user.js')
-var Task = require('../models/task.js')
-var Room = require('../models/space.js')
-var TaskGroup = require('../models/taskGroup.js')
+var Assignments = require('../models/assignments.js')
+var Space = require('../models/space.js')
+var Group_assignments = require('../models/group_assignments.js')
 
-var getRemainingGroupTasks = function(roomID, callback) {
-  var taskDb = TaskGroup.find({room: roomID, status: false}, function (err, results) {
-    if (!err) {
-      callback(null, results);
-    } else {
-      callback(err, []);
-    }
-  })
-}
 
-var getDoneGroupTasks = function(roomID, callback) {
-  var taskDb = TaskGroup.find({room: roomID, status: true}, function (err, results) {
-    if (!err) {
-      callback(null, results);
-    } else {
-      callback(err, []);
-    }
-  })
-}
-
-var getAllTasks = function(roomID, callback) {
-  var taskDb = Task.find({room: roomID}, function (err, results) {
-    if (!err) {
-      callback(null, results);
-    } else {
-      callback(err, []);
-    }
-  })
-}
-
-var getRemainingTasks = function(roomID, callback) {
-  var taskDb = Task.find({room: roomID, status: false}, function (err, results) {
-    if (!err) {
-      callback(null, results);
-    } else {
-      callback(err, []);
-    }
-  })
-}
-
-var getDoneTasks = function(roomID, callback) {
-  var taskDb = Task.find({room: roomID, status: true}, function (err, results) {
-    if (!err) {
-      callback(null, results);
-    } else {
-      callback(err, []);
-    }
-  })
-}
-
-var getRoommates = function(roomID, callback) {
-  var userDb = User.find({space: roomID}, function (err, results) {
-    if (!err) {
-      callback(null, results);
-    } else {
-      callback(err, []);
-    }
-  })
-}
 
 apiRoutes.get('/getRoommates', function (req, res, next) {
-	var roomDb = Room.findById(req.session.space, function (err, result) {
-    if (!err) {
-      res.json(result.mates)
-    } else {
+	var db_space = Space.findById(req.session.space, function (err, result) {
+
+    if(err){
       next(err)
+    } else {
+      res.json(result.mates)
     }
   })
 })
 
-apiRoutes.post('/addTask', function (req, res, next) {
-  var { taskTitle } = req.body; // ES6 shorthand
-  var task = new Task({
-    title: taskTitle,
-    status: false,
-    responsible: "",
-    room: req.session.space
+apiRoutes.post('/add_assignemt', function (req, res, next) {
+  var { taskTitle } = req.body;
+  var task = new Assignments({
+    heading: taskTitle,
+    condition_of_assignment: false,
+    id_of_responsible: "",
+    space: req.session.space
   })
   task.save(function (err, task) {
     if (err) next(err);
@@ -89,22 +32,22 @@ apiRoutes.post('/addTask', function (req, res, next) {
   })
 })
 
-apiRoutes.post('/addGroupTask', function (req, res, next) {
+apiRoutes.post('/add_assignment_group', function (req, res, next) {
   var { taskTitle, tasks } = req.body;
-  var task = new TaskGroup({
-    title: taskTitle,
-    status: false,
-    room: req.session.space
+  var task = new Group_assignments({
+    heading: taskTitle,
+    condition_of_assignment: false,
+    space: req.session.space
   })
   task.save(function (err, task) {
     if (err) next(err);
     var subtasks = tasks.split(',');
     subtasks.forEach(function(item) {
-      var subtask = new Task({
-          title: item,
-          status: false,
-          responsible: "",
-          room: task.id
+      var subtask = new Assignments({
+          heading: item,
+          condition_of_assignment: false,
+          id_of_responsible: "",
+          space: task.id
       })
       subtask.save(function (err, task) {
         if (err) console.log(err);
@@ -114,9 +57,9 @@ apiRoutes.post('/addGroupTask', function (req, res, next) {
   })
 })
 
-apiRoutes.post('/deleteTask', function (req, res, next) {
+apiRoutes.post('/delete_duty', function (req, res, next) {
   var { taskId } = req.body;
-  var taskDb = Task.findById(taskId, function (err, result) {
+  var db = Assignments.findById(taskId, function (err, result) {
     if (!err) {
       result.remove()
       res.redirect('/');
@@ -126,12 +69,12 @@ apiRoutes.post('/deleteTask', function (req, res, next) {
   })
 })
 
-apiRoutes.post('/doTask', function (req, res, next) {
+apiRoutes.post('/do_duty', function (req, res, next) {
   var { taskId } = req.body;
-  var taskDb = Task.findById(taskId, function (err, result) {
+  var db = Assignments.findById(taskId, function (err, result) {
       if (!err) {
-        result.responsible = req.session.userId;
-        result.responsibleName = req.session.user;
+        result.id_of_responsible = req.session.userId;
+        result.name_of_responsible = req.session.user;
         result.save(function (err, task) {
         console.log(err)
         if (err) next(err);
@@ -143,12 +86,12 @@ apiRoutes.post('/doTask', function (req, res, next) {
   })
 })
 
-apiRoutes.post('/leaveTask', function (req, res, next) {
+apiRoutes.post('/remove_duty', function (req, res, next) {
   var { taskId } = req.body;
-  var taskDb = Task.findById(taskId, function (err, result) {
+  var db = Assignments.findById(taskId, function (err, result) {
     if (!err) {
-      result.responsible = "";
-      result.responsibleName = '';
+      result.id_of_responsible = "";
+      result.name_of_responsible = '';
       result.save(function (err, task) {
         console.log(err)
         if (err) next(err);
@@ -160,11 +103,11 @@ apiRoutes.post('/leaveTask', function (req, res, next) {
   })
 })
 
-apiRoutes.post('/completeTask', function (req, res, next) {
+apiRoutes.post('/finish_duty', function (req, res, next) {
 var { taskId } = req.body;
-var taskDb = Task.findById(taskId, function (err, result) {
+var db = Assignments.findById(taskId, function (err, result) {
     if (!err) {
-      result.status = true;
+      result.condition_of_assignment = true;
       result.save(function (err, task) {
         console.log(err)
         if (err) next(err);
@@ -176,18 +119,18 @@ var taskDb = Task.findById(taskId, function (err, result) {
   })
 })
 
-apiRoutes.post('/completeSubTask', function (req, res, next) {
+apiRoutes.post('/finish_sub_duty', function (req, res, next) {
   var { taskId } = req.body;
-  var taskDb = Task.findById(taskId, function (err, result) {
+  var db = Assignments.findById(taskId, function (err, result) {
   if (!err) {
-    result.status = true;
+    result.condition_of_assignment = true;
     result.save(function (err, task) {
       console.log(err)
       if (err) next(err);
-      getRemainingTasks(task.room, function(err, remaining) {
+      remaining_assignments_single(task.space, function(err, remaining) {
         if (!remaining.length) {
-          var gTaskDb = TaskGroup.findById(task.room, function(err, parentTask) {
-            parentTask.status = true;
+          var gTaskDb = Group_assignments.findById(task.space, function(err, parentTask) {
+            parentTask.condition_of_assignment = true;
             parentTask.save(function(err){
               if (err) next(err);
                 res.redirect('/');
@@ -204,24 +147,24 @@ apiRoutes.post('/completeSubTask', function (req, res, next) {
   })
 })
 
-apiRoutes.post('/deleteSubTask', function (req, res, next) {
+apiRoutes.post('/remove_sub_duty', function (req, res, next) {
   var { taskId } = req.body;
-  var taskDb = Task.findById(taskId, function (err, task) {
+  var db = Assignments.findById(taskId, function (err, task) {
     if (!err) {
       task.remove()
-      getAllTasks(task.room, function(err, allTasks) {
+      all_assignments(task.space, function(err, allTasks) {
         if (!allTasks.length) {
-          var gTaskDb = TaskGroup.findById(task.room, function(err, parentTask){
+          var gTaskDb = Group_assignments.findById(task.space, function(err, parentTask){
             parentTask.remove();
             res.redirect('/');
             return
           })
         } else {
-          getRemainingTasks(task.room, function(err, remaining) {
+          remaining_assignments_single(task.space, function(err, remaining) {
             if (err) next(err);
             if (!remaining.length) {
-              var gTaskDb = TaskGroup.findById(task.room, function(err, parentTask) {
-                parentTask.status = true;
+              var gTaskDb = Group_assignments.findById(task.space, function(err, parentTask) {
+                parentTask.condition_of_assignment = true;
                 parentTask.save(function(err){
                   if (err) next(err);
                   res.redirect('/');
@@ -241,12 +184,75 @@ apiRoutes.post('/deleteSubTask', function (req, res, next) {
   })
 })
 
+
+
+var all_assignments = function(space_code, callback) {
+  var db = Assignments.find({space: space_code}, function (err, results) {
+    if(err) {
+      callback(err, []);
+    } else{
+      callback(null, results);
+    }
+  })
+}
+
+var remaining_assignments_single = function(space_code, callback) {
+  var db = Assignments.find({space: space_code, condition_of_assignment: false}, function (err, results) {
+    if(err) {
+      callback(err, []);
+    } else{
+      callback(null, results);
+    }
+  })
+}
+
+var done_assignments_single = function(space_code, callback) {
+  var db = Assignments.find({space: space_code, condition_of_assignment: true}, function (err, results) {
+    if(err) {
+      callback(err, []);
+    } else{
+      callback(null, results);
+    }
+  })
+}
+
+var remaining_assignments_group = function(space_code, callback) {
+  var db = Group_assignments.find({space: space_code, condition_of_assignment: false}, function (err, results) {
+    if(err) {
+      callback(err, []);
+    } else{
+      callback(null, results);
+    }
+  })
+}
+
+var done_assignments_group = function(space_code, callback) {
+  var db = Group_assignments.find({space: space_code, condition_of_assignment: true}, function (err, results) {
+    if(err) {
+      callback(err, []);
+    } else{
+      callback(null, results);
+    }
+  })
+}
+
+var getRoommates = function(space_code, callback) {
+  var userDb = User.find({space: space_code}, function (err, results) {
+    if(err) {
+      callback(err, []);
+    } else{
+      callback(null, results);
+    }
+  })
+}
+
+
 module.exports = {
   apiRoutes,
-  getRemainingTasks,
-  getDoneTasks,
-  getAllTasks,
+  remaining_assignments_single,
+  done_assignments_single,
+  all_assignments,
   getRoommates,
-  getRemainingGroupTasks,
-  getDoneGroupTasks
+  remaining_assignments_group,
+  done_assignments_group
 };

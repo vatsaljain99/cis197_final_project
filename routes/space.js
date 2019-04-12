@@ -8,14 +8,21 @@ var User = require('../models/user')
 router.get('/createSpace', function (req, res) {
   if (!req.session.user) {
     res.redirect('/');
-  }  else {
-    res.render('createSpace', {user: req.session.user, userId: req.session.userId});
+  } else if (req.session.space) {
+    res.redirect('/');
+  } else {
+    res.render('createSpace', {
+      user: req.session.user,
+      userId: req.session.userId
+    });
   }
 });
 
 router.post('/createSpace', function (req, res) {
 
-  Space.find({space_name: req.body.space}, function (err, results) {
+  Space.find({
+    space_name: req.body.space
+  }, function (err, results) {
     //console.log(results)
 
     if (!results.length) {
@@ -29,23 +36,27 @@ router.post('/createSpace', function (req, res) {
       //console.log("check")
 
       create.save(function (err, space) {
-        if (err){
+        if (err) {
           next(err);
         }
         req.session.space = space.id;
+        //console.log(req.session.space)
         var us = User.findById(req.session.userId, function (err, u) {
-            //console.log(req.session.user)
+          //console.log(req.session.user)
           if (!err) {
             //console.log("check123")
             u.space = space.id;
-            u.save(function (err) {
-            });
+            u.save(function (err) {});
           }
         });
-       res.redirect('/');
+        res.redirect('/');
       })
     } else {
-      res.render('createSpace', {user: req.session.user, userId: req.session.userId, error: "Space ALready present"});
+      res.render('createSpace', {
+        user: req.session.user,
+        userId: req.session.userId,
+        error: "Space ALready present"
+      });
       //console.log("NO")
     }
   })
@@ -55,32 +66,46 @@ router.get('/join_space', function (req, res) {
 
   if (!req.session.user) {
     res.redirect('/');
-  }  else {
-    res.render('join_space', {user: req.session.user, userId: req.session.userId});
+  } else if (req.session.space) {
+    res.redirect('/');
+  } else {
+    res.render('join_space', {
+      user: req.session.user,
+      userId: req.session.userId
+    });
   }
 });
 
 router.post('/join_space', function (req, res) {
+  var space_name = req.body.space_name;
+  var password = req.body.password;
 
-    Space.findOne({space_name: req.body.space_name, password: req.body.password}, function(err, space) {
-      if (space) {
-        req.session.space = space.id;
-        space.mates.push(req.session.userId);
-        space.save(function(err){
-        });
-        var us = User.findById(req.session.userId, function (err, u) {
-          if (!err) {
-            u.space = space.id;
-            u.save(function (err) {
-            });
-          }
-        });
-        res.redirect('/');
-      }
-      else {
-        res.render('join_space', {user: req.session.user, userId: req.session.userId, error: "Error"});
-      }
-    })
+  Space.findOne({
+    space_name: space_name,
+    password: password
+  }, function (err, space) {
+    if (space) {
+      req.session.space = space.id;
+      //console.log(req.session.space)
+      space.mates.push(req.session.userId);
+      console.log(req.session.userId);
+      console.log(space.mates);
+      space.save(function (err) {});
+      var us = User.findById(req.session.userId, function (err, u) {
+        if (!err) {
+          u.space = space.id;
+          u.save(function (err) {});
+        }
+      });
+      res.redirect('/');
+    } else {
+      res.render('join_space', {
+        user: req.session.user,
+        userId: req.session.userId,
+        error: "Error"
+      });
+    }
+  })
 })
 
 //Add Leave Space Later
@@ -92,14 +117,14 @@ router.get('/leave_space', function (req, res, next) {
       result.space = null;
       result.save(function (err, result) {
         if (err) next(err);
-          var roomDb = Space.findById(req.session.space, function (err, room) {
-            if (!err) {
-              var userInx = room.mates.indexOf(req.session.userId);
-              if (userInx > -1) {
-                room.mates.splice(userInx, 1);
-              }
-              req.session.space = null;
-              room.save(function (err, modifiedRoom) {
+        var roomDb = Space.findById(req.session.space, function (err, room) {
+          if (!err) {
+            var userInx = room.mates.indexOf(req.session.userId);
+            if (userInx > -1) {
+              room.mates.splice(userInx, 1);
+            }
+            req.session.space = null;
+            room.save(function (err, modifiedRoom) {
               if (err) next(err);
               res.redirect('/');
             });

@@ -71,7 +71,7 @@ router.post('/login', function (req, res) {
   		req.session.user = output.username
       req.session.space = output.space;
       req.session.userId = output.id;
-  		res.redirect('/space/createSpace');
+  		res.redirect('/');
   	}
   	else {
   		res.render('login', {error: 'Wrong Input'});
