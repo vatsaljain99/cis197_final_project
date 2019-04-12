@@ -112,29 +112,30 @@ router.post('/join_space', function (req, res) {
 
 router.get('/leave_space', function (req, res, next) {
   var roomTitle = req.session.user;
-  var userDb = User.findById(req.session.userId, function (err, result) {
-    if (!err) {
-      result.space = null;
-      result.save(function (err, result) {
-        if (err) next(err);
-        var roomDb = Space.findById(req.session.space, function (err, room) {
-          if (!err) {
-            var userInx = room.mates.indexOf(req.session.userId);
-            if (userInx > -1) {
-              room.mates.splice(userInx, 1);
-            }
-            req.session.space = null;
-            room.save(function (err, modifiedRoom) {
-              if (err) next(err);
-              res.redirect('/');
+  var db = User.findById(req.session.userId, function (err, result) {
+      if (err) {
+        next(err);
+      } else {
+        result.space = null;
+        result.save(function (err, result) {
+            if (err) next(err);
+            var rdb = Space.findById(req.session.space, function (err, space) {
+                if (err) {
+                  next(err);
+                } else {
+                  var i = space.mates.indexOf(req.session.userId);
+                  if (i > -1) {
+                    space.mates.splice(i, 1);
+                  }
+                  req.session.space = null;
+                  space.save(function (err, mSpace) {
+                    if (err) next(err);
+                    res.redirect('/');
+                  });
+                }
+
             });
-          } else {
-            next(err)
-          }
         });
-      });
-    } else {
-      next(err)
     }
   })
 })
