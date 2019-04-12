@@ -4,7 +4,6 @@ var bodyParser = require('body-parser');
 var cookieSession = require('cookie-session');
 var mongoose = require('mongoose');
 var isAuthenticated = require('./middlewares/isAuthenticated.js');
-var Question = require('./models/question.js');
 var Space = require('./models/space.js')
 var accountRouter = require('./routes/account.js');
 var spaceRouter = require('./routes/space.js');
