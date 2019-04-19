@@ -33,7 +33,7 @@
 
 		body {
       font-family: 'Raleway', sans-serif;
-			background-color: #EFF3F3;
+			background-color: #FCFCFB;
     }
     #head {
       color: darkblue;
@@ -68,7 +68,9 @@
         <label for="password" class="col-sm-4" class="login">Password</label>
         <input type="password" name="password" class="form-control" id="password" class="login">
       </div>
-
+			<% if (error) { %>
+					<div class="alert alert-danger"><%= error %></div>
+				<% } %>
       <button type="submit" class="btn btn-primary" id="butt">Submit</button>
     </form>
     </div>

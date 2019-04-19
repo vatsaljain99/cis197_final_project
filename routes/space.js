@@ -13,7 +13,8 @@ router.get('/createSpace', function (req, res) {
   } else {
     res.render('createSpace', {
       user: req.session.user,
-      userId: req.session.userId
+      userId: req.session.userId,
+      error: ""
     });
   }
 });
@@ -21,7 +22,8 @@ router.get('/createSpace', function (req, res) {
 router.post('/createSpace', function (req, res) {
 
   Space.find({
-    space_name: req.body.space
+    space_name: req.body.space,
+    password: req.body.password
   }, function (err, results) {
     //console.log(results)
 
@@ -55,7 +57,7 @@ router.post('/createSpace', function (req, res) {
       res.render('createSpace', {
         user: req.session.user,
         userId: req.session.userId,
-        error: "Space ALready present"
+        error: "Space Already present"
       });
       //console.log("NO")
     }
@@ -71,7 +73,8 @@ router.get('/join_space', function (req, res) {
   } else {
     res.render('join_space', {
       user: req.session.user,
-      userId: req.session.userId
+      userId: req.session.userId,
+      error: ""
     });
   }
 });
@@ -88,8 +91,8 @@ router.post('/join_space', function (req, res) {
       req.session.space = space.id;
       //console.log(req.session.space)
       space.mates.push(req.session.userId);
-      console.log(req.session.userId);
-      console.log(space.mates);
+      //console.log(req.session.userId);
+      //console.log(space.mates);
       space.save(function (err) {});
       var us = User.findById(req.session.userId, function (err, u) {
         if (!err) {
@@ -102,13 +105,11 @@ router.post('/join_space', function (req, res) {
       res.render('join_space', {
         user: req.session.user,
         userId: req.session.userId,
-        error: "Error"
+        error: "Space not present"
       });
     }
   })
 })
-
-//Add Leave Space Later
 
 router.get('/leave_space', function (req, res, next) {
   var roomTitle = req.session.user;

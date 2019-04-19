@@ -8,9 +8,11 @@ var Space = require('./models/space.js')
 var accountRouter = require('./routes/account.js');
 var spaceRouter = require('./routes/space.js');
 var async = require('async')
-
+var Chat = require('./models/chat.js')
 var {apiRoutes, remaining_assignments_single, done_assignments_single, getRoommates, remaining_assignments_group, all_assignments, done_assignments_group} = require('./routes/api.js')
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/hw5-new')
 
 app.engine('html', require('ejs').__express);
@@ -100,6 +102,22 @@ app.get('/', function (req, res) {
 app.post('/', function (req, res) {
 });
 
+app.get('/chat', function (req, res, next) {
+  if (req.session.space) {
+    var room = req.session.space;
+    var user = req.session.user;
+    var chatDb = Chat.find({room: room}, function(err, results) {
+      if (err) {
+        console.log(err)
+      } else {
+        res.render('chat', {room: room, username: user, textHistory: results});
+      }
+    })
+  } else {
+    res.redirect('/');
+  }
+});
+
 
 app.use('/account', accountRouter)
 app.use('/api', apiRoutes)
@@ -107,11 +125,33 @@ app.use('/space', spaceRouter)
 
 // TODO: Mount api routes at '/api' prefix
 
+io.on('connection', function(socket){
+  var chat = "";
+  socket.on('join chat', function(room) {
+    chat = room;
+    socket.join(room);
+  })
+  socket.on('chat message', function(msg){
+    io.to(chat).emit('chat message', msg);
+    var message = new Chat({
+      text: msg.text,
+      sender: msg.sender,
+      room: msg.room
+    })
+    message.save(function (err, task) {
+      if (err) next(err);
+    })
+  });
+});
 // don't put any routes below here!
 app.use(function (err, req, res, next) {
   return res.send('ERROR :  ' + err.message)
 })
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log('App listening on port ' + (process.env.PORT || 3000))
-})
+// app.listen(process.env.PORT || 3000, function () {
+//   console.log('App listening on port ' + (process.env.PORT || 3000))
+// })
+
+http.listen(3000, function(){
+  console.log('listening on port :3000');
+});

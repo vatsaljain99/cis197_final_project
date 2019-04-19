@@ -56,13 +56,13 @@
             <form class="needs-validation" method="POST" novalidate>
               <div class="form-row">
                 <div class="col-md-8">
-                  <label for="fN">First name</label>
-                  <input type="text" name="fN" class="form-control" id="firstName" required>
+                  <label for="firstName">First name</label>
+                  <input type="text" name="firstName" class="form-control" id="firstName" required>
 
                 </div>
                 <div class="col-md-8">
-                  <label for="lN">Last name</label>
-                  <input type="text" name="lN" class="form-control" id="lastName" required>
+                  <label for="lastName">Last name</label>
+                  <input type="text" name="lastName" class="form-control" id="lastName" required>
 
                 </div>
               </div>
@@ -85,7 +85,9 @@
                   </div>
                 </div>
               </div>
-
+							<% if (error) { %>
+                  <div class="alert alert-danger"><%= error %></div>
+                <% } %>
               <button class="btn btn-primary" type="submit">Sign Up!</button>
             </form>
         </div>

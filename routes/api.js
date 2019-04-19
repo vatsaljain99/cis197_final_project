@@ -7,7 +7,15 @@ var Group_assignments = require('../models/group_assignments.js')
 
 
 
-
+apiRoutes.get('/getRoommates', function (req, res, next) {
+	var db_space = Space.findById(req.session.space, function (err, result) {
+    if(err){
+      next(err)
+    } else {
+      res.json(result.mates)
+    }
+  })
+})
 
 apiRoutes.post('/add_assignemt', function (req, res, next) {
   var { taskTitle } = req.body;

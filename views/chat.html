@@ -1,0 +1,109 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; left: 0; bottom: 0; width: 100%; height: 15vh;  }
+      form input { border: 0; padding: 10px; width: 80%; margin-right: .5%; }
+      form button { width: 100%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; height: 60vh; overflow-y: scroll;}
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+
+      .navbar{
+
+        display: flex;
+        width: 100%;
+        height: 1px;
+        color: black;
+      }
+      .navbar span {
+        display: inline;
+      }
+      .nav {
+        display: inline-block;
+      }
+      .navbar span {
+        background-color: lightblue;
+        list-style: none;
+        padding: 20px;
+        margin: 5px;
+        border: 0.05px solid #000;
+        transition: all 0.5s
+
+      }
+
+      .navbar span:hover {
+        background-color: lightgray;
+        color: #FFF;
+        cursor: pointer;
+      }
+
+    </style>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <span style = "display:inline"><a href="/">Back to duties</a></span>
+            <span style = "display:inline"><a href="/account/logout">Log out</a></span>
+
+        </div>
+      </nav>
+
+    <div class="container" style="position: relative;"> 
+      <header class="mt-4">
+        <div style="display: flex; justify-content: space-between; flex-direction: row; flex-wrap: wrap;">
+          <div>
+            <h1>Chat</h1>
+          </div>
+          <div>
+            <p style = "font-size: 40px;">Hi, <%= username %>
+
+            </p>
+          </div>
+        </div>
+        <hr/>
+      </header>
+      <ul id="messages">
+        <% if (textHistory) { %>
+          <% textHistory.forEach(function(message) {
+            if ( username === message.sender) { %>
+              <li style="text-align: right;" data-qid=<%= message.id %>><%= message.text %></li>
+            <% } else { %>
+              <li data-qid=<%= message.id %>><small><b><%= message.sender %></b></small><br/><%= message.text %></li>
+            <% }
+           })
+         } %>
+      </ul>
+      <form action="" class="text-right">
+        <input required class="form-control" id="m" autocomplete="off"><button class="btn btn-sm btn-primary mt-2">Send</button>
+      </form>
+    </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+  </script>
+  <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+  <script>
+    $(function () {
+      var socket = io();
+      socket.emit('join chat', "<%= room %>")
+      $('form').submit(function(){
+        socket.emit('chat message', { text: $('#m').val(), sender: '<%= username%>', room: "<%= room %>"});
+        $('#m').val('');
+        return false;
+      });
+      socket.on('chat message', function(msg){
+        if ("<%= username %>" === msg.sender) {
+          $('#messages').append($('<li>').html(msg.text).css("text-align", "right"));
+        } else {
+          $('#messages').append($('<li>').html('<b>'+msg.sender+' sent:</b> '+msg.text).css("text-align", "left"));
+        }
+      });
+    });
+  </script>
+  </body>
+</html>

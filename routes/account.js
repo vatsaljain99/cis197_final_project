@@ -4,26 +4,15 @@ var isAuthenticated = require('../middlewares/isAuthenticated')
 var User = require('../models/user.js')
 
 router.get('/signup', function (req, res) {
-  res.render('signup')
+  User.find({}, function (err, results) {
+  })
+	res.render('signup', {error: ""});
 })
-
-// router.post('/signup', function (req, res, next) {
-//   var username = req.body.username;
-//   var password = req.body.password;
-//   var u = new User({ username: username, password: password })
-//   u.save(function (err, result) {
-//     if (err) {
-//       next(err)
-//     }
-//     if (!err) {
-//       res.redirect('/account/login')
-//     }
-//   })
-// })
 
 router.post('/signup', function (req, res) {
   var un = req.body.username;
-  User.find({un}, function (err, outputs) {
+  User.find({username: un}, function (err, outputs) {
+    console.log(outputs)
     if (outputs.length) {
 			res.render('signup', {error: "There is a User with same Credentials"});
     } else {
@@ -34,7 +23,7 @@ router.post('/signup', function (req, res) {
 				space: []});
 			u.save(function (err, output) {
 				if (err) {
-          res.render('signup', {error: 'Invalid Credentials'});
+          res.send('something went wrong: ' + err.message);
 
 			} else {
 				req.session.user = output.username
@@ -48,21 +37,9 @@ router.post('/signup', function (req, res) {
 })
 
 router.get('/login', function (req, res) {
-  res.render('login')
+  res.render('login', {error: ''});
 })
 
-// router.post('/login', function (req, res, next) {
-//   var username = req.body.username;
-//   var password = req.body.password;
-//   User.findOne({ username: username, password: password }, function (err, result) {
-//     if (!err && result != null) {
-//       req.session.user = username;
-//       res.redirect('/')
-//     } else {
-//       next(new Error('invalid credentials'))
-//     }
-//   })
-// })
 
 router.post('/login', function (req, res) {
 
