@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Avaialbale Spaces</title>
+  </head>
+    <style>
+      body{
+        margin-left: 5px;
+      }
+      .navbar{
+        background-color: lightblue;
+        display: flex;
+        width: 100%;
+        height: 75px;
+        color: black;
+      }
+      .navbar li{
+        display: inline;
+        margin-right: 20px;
+        list-style: none;
+        padding: 20px;
+        padding-top: 10px;
+        border: 1px solid #000;
+        transition: all 0.5s
+      }
+      .nav {
+        display: inline-block;
+
+      }
+      .available li{
+        list-style: none;
+        padding: 20px;
+        margin: 5px;
+        border: 1px solid #000;
+        transition: all 0.5s
+      }
+      ul{
+        padding: 0px;
+      }
+    </style>
+  <body>
+    <body>
+  		<nav class="navbar navbar-default navbar-fixed-top">
+  	      <div class="container-fluid">
+  	        <ul class="nav navbar-nav">
+  	          <li><a href="/space/createSpace">Create Space</a></li>
+  	          <li><a href="/space/join_space">Join Space</a></li>
+  						<li><a href="/account/logout">Log out</a></li>
+  	        </ul>
+  	      </div>
+  	    </nav>
+    <div class="available">
+      <ul>
+      <% space.forEach(function(s) { %>
+        <li class="my-1"><%= s.space_name %> </li>
+        <% }) %>
+      </ul>
+    </div>
+  </body>
+</html>

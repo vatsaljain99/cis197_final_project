@@ -19,6 +19,13 @@ router.get('/createSpace', function (req, res) {
   }
 });
 
+router.get('/available_spaces', function (req, res) {
+  Space.find({}, function (err, results) {
+    res.render('available_spaces' , {space: results})
+  })
+    
+});
+
 router.post('/createSpace', function (req, res) {
 
   Space.find({
