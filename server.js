@@ -23,8 +23,6 @@ app.use('/static', express.static(path.join(__dirname, 'static')))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
 
-// TODO: configure body parser middleware to also accept json. just do
-// app.use(bodyParser.json())
 
 app.use(cookieSession({
   name: 'local-session',
@@ -32,41 +30,10 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 
-
-// app.get('/', function (req, res, next) {
-//   questions = Question.find({}, function (err, result) {
-//     if (err) next(err)
-//     res.render('index', {
-//       questions: result,
-//       user: req.session.user
-//     })
-//   })
-// });
-//
-//
-// app.post('/', function (req, res, next) {
-//   var questionText = req.body.question;
-//   var q = new Question({ questionText: questionText, author: req.session.user})
-//   q.save(function (err, result) {
-//     if (!err) {
-//       res.redirect('/')
-//     } else {
-//       next(err)
-//     }
-//   })
-// })
-//
-//
-// app.use('/account', accountRouter)
-// app.use('/api', apiRouter)
-// app.use('/space', spaceRouter)
-
-
 app.get('/', function (req, res) {
   if (req.session.space) {
     var space = req.session.space;
     Space.findById(space, function(err, data) {
-      //console.log(space)
       done_assignments_single(space, function(err, doneTasks) {
         remaining_assignments_single(space, function(err, tasks) {
           getRoommates(space, function(err, mates) {
